@@ -22,6 +22,7 @@ function Template(props){
   const [Tasks, updateList] = useState([]);
   function _updateTaskList(data){
     updateList(data);
+    // Here is the issue, After Tasks list get updated , its not updating Todolist
   }
   return (
     <div>
