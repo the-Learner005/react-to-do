@@ -5,6 +5,7 @@ import CardContent from '@material-ui/core/CardContent';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import uuid from 'react-uuid';
 
 import { KeyboardArrowRight, BorderColor} from '@material-ui/icons';
 
@@ -29,16 +30,18 @@ export default function ToDoList(props) {
   const classes = useStyles();
 
   const [Tasks, updateList] = useState(props.allTasks);
+  const _editTask = function(task){
+    props.saveData(task);
+  }
   return (
     <Card className={classes.root}>
       <CardContent>
-        {Tasks.map((item,index) => {
-          
+        {props.allTasks.map((item,index) => {
           return (
-            <List key={index} component="nav" aria-label="main mailbox folders">
-              <ListItem button>
+            <List key={item.id} component="nav" aria-label="main mailbox folders">
+              <ListItem button onClick={() => _editTask(item)}>
                 <KeyboardArrowRight></KeyboardArrowRight>
-                <ListItemText primary={index} secondary={item} />
+                <ListItemText primary={item.task_name} secondary={item.task_description} />
                 <BorderColor></BorderColor>
               </ListItem>
             </List>

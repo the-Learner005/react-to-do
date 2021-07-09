@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Grid from '@material-ui/core/Grid';
-import Add from './add';
+import { makeStyles, Button, Icon, Paper, Grid} from '@material-ui/core';
+import Task from './Task';
 import ToDoList from './list';
-import Edit from './edit';
+import uuid from 'react-uuid';
+import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from '@material-ui/icons/Add';
 function Template(props){
   const useStyles = makeStyles((theme) => ({
     root: {
@@ -19,30 +19,85 @@ function Template(props){
 
 
   const classes = useStyles();
-  const [Tasks, updateList] = useState([]);
-  function _updateTaskList(data){
+  
+  const [Tasks, updateList] = useState([{id: uuid(), task_name: 'Task 1', task_description: 'Test data'}, {id: uuid(), task_name: 'Task 2', task_description: 'Test data'}]);
+  const [TaskData, setTask] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [selectedValue, setSelectedValue] = React.useState();
+  
+  const handleClickOpen = (action) => {
+    setOpen(true);
+  };
+
+  const handleClose = (value) => {
+    setOpen(false);
+    setSelectedValue(value);
+  };
+  const _updateTaskList = function(data){
     updateList(data);
     // Here is the issue, After Tasks list get updated , its not updating Todolist
   }
+  const addTask = function(task){
+    task.id = uuid();
+    let copyTasks = [...Tasks];
+    copyTasks.push(task);
+    updateList(copyTasks);
+  }
+  const editTask = function(task){
+    let copyTasks = [...Tasks];
+    copyTasks.map((item, index) => {
+      if(item.id == task.id){
+        item = task;
+      }
+    });
+    updateList(copyTasks);
+  }
+
+  const findTask = function(id){
+    let copyTasks = [...Tasks];
+    copyTasks.map((item, index) => {
+      if(item.id == id){
+        return item;
+      }
+    });
+    return false;
+  }
+
+  const saveData = function(data){
+    if(!data.id){
+      handleClickOpen();
+      setTask(null);
+    }
+    else{
+      handleClickOpen();
+      setTask(data);
+      // editTask(data);
+    }
+  }
+
   return (
     <div>
-      <Grid container spacing={8}>
+      <Grid container spacing={12}>
         <Grid item xs={6}>
           <Paper className={classes.paper}>
-            <Add updateTaskList={_updateTaskList} allTasks={Tasks}></Add>
+            <Button variant="outlined" onClick={saveData} color="primary">
+              Add Task <AddIcon/>
+            </Button>
+            <Task selectedValue={selectedValue} open={open} onClose={handleClose} updateTaskList={_updateTaskList} allTasks={Tasks} saveData={saveData} taskData={TaskData}></Task>
           </Paper>
         </Grid>
         <Grid item xs={6}>
-          <ToDoList allTasks={[Tasks]}></ToDoList>
+          <ToDoList allTasks={Tasks} saveData={saveData}></ToDoList>
         </Grid>
       </Grid>
       <Grid container spacing={12}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
-            {/* <Edit></Edit> */}
+           <p>Get</p>
           </Paper>
         </Grid>
       </Grid> 
+      
     </div>
   );
 }
