@@ -1,13 +1,7 @@
-import React, { useState, useEffect }  from 'react';
+import React, { useState}  from 'react';
+import { Card, CardContent, List, ListItem, ListItemText, Box } from '@material-ui/core';
+import {BorderColor, Delete} from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import uuid from 'react-uuid';
-
-import { KeyboardArrowRight, BorderColor} from '@material-ui/icons';
 
 const useStyles = makeStyles({
   root: {
@@ -24,25 +18,28 @@ const useStyles = makeStyles({
   pos: {
     marginBottom: 12,
   },
+  
 });
 
-export default function ToDoList(props) {
+export default function ToDoList({allTasks, saveData, deleteTask}) {
   const classes = useStyles();
-
-  const [Tasks, updateList] = useState(props.allTasks);
-  const _editTask = function(task){
-    props.saveData(task);
+  const editTask = function(task){
+    saveData(task);
   }
+  const _deleteTask = function(task){
+    deleteTask(task);
+  }
+  
   return (
     <Card className={classes.root}>
       <CardContent>
-        {props.allTasks.map((item,index) => {
+        {allTasks.map((item,index) => {
           return (
-            <List key={item.id} component="nav" aria-label="main mailbox folders">
-              <ListItem button onClick={() => _editTask(item)}>
-                <KeyboardArrowRight></KeyboardArrowRight>
+            <List key={item.id} component="nav">
+              <ListItem>
                 <ListItemText primary={item.task_name} secondary={item.task_description} />
-                <BorderColor></BorderColor>
+                <Box m={2} pt={3}><BorderColor button onClick={() => editTask(item)}></BorderColor></Box>
+                <Box m={2} pt={3}><Delete button onClick={() => _deleteTask(item)}></Delete> </Box>
               </ListItem>
             </List>
           );

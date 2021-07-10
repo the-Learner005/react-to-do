@@ -1,7 +1,6 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import styles from '../../styles/app.scss';
-import {makeStyles, Dialog, DialogTitle, TextField, Button, Grid} from '@material-ui/core';
+import { makeStyles, Dialog, DialogTitle, TextField, Button, Grid, Box } from '@material-ui/core';
 function Task(props){
   const useStyles = makeStyles((theme) => ({
     root: {
@@ -11,7 +10,10 @@ function Task(props){
       },
     },
     form:{
-      maxWidth:'1000px'
+      maxWidth:'500px'
+    },
+    error:{
+      color:'red'
     }
   }));
   const classes = useStyles();
@@ -21,46 +23,51 @@ function Task(props){
     onClose(selectedValue);
   };
   return (
-    <Dialog fullWidth={true} maxWidth={'lg'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}>
-      <div>
-        <h1>Add a Task</h1>
-        <Formik
-          initialValues={props.taskData ? { 'task_name': props.taskData.task_name, task_description: props.taskData.task_description , status: false} : { 'task_name': '', task_description: '' , status: false}}
-          validate={values => {
-            const errors = {};
-            if (!values.task_name) {
-              errors.task_name = 'Please Enter Task Name';
-            }
-            if (!values.task_description) {
-              errors.task_description = 'Please Enter Task Description';
-            }
-            return errors;
+    <Dialog fullWidth={true} maxWidth={'md'} onClose={handleClose} aria-labelledby="simple-dialog-title" open={open}> 
+      <Grid container spacing={3}>
+        <Grid item xs={2}></Grid>
+        <Grid item xs={8}>
+          <Box pl={3} pt={3}><h1>{ props.taskData ? 'Edit Task' : 'Add Task' }</h1></Box>
+          <Formik
+            initialValues={props.taskData ? {id: props.taskData.id, 'task_name': props.taskData.task_name, task_description: props.taskData.task_description , status: false} : { 'task_name': '', task_description: '' , status: false}}
+            validate={values => {
+              const errors = {};
+              if (!values.task_name) {
+                errors.task_name = 'Please Enter Task Name';
+              }
+              if (!values.task_description) {
+                errors.task_description = 'Please Enter Task Description';
+              }
+              return errors;
+            }}
+            onSubmit={(values, { setSubmitting }) => {
+              if(values.id){
+                props.editTask(values);
+              }
+              else{
+                props.addTask(values);
+              }
+              setSubmitting(false);
           }}
-          onSubmit={(values, { setSubmitting }) => {
-            props.saveData(values);
-            setSubmitting(false);
-        }}
           >
           {({ values, isSubmitting, handleChange }) => (
-            <Form className={`${classes.root} ${classes.form}`}>
-              <Grid container spacing={12}>
-                <Grid item xs={12}><TextField className="full-width" name="task_name" type="text" value={values.task_name} onChange={handleChange}  label="Task Name" variant="outlined" /></Grid>
-                <Grid item xs={12}><ErrorMessage className="error" name="task_name" component="div" /></Grid>
-              </Grid>
-              <Grid container spacing={12}>
-                <Grid item xs={12}><TextField className="full-width" name="task_description" type="text" value={values.task_description} onChange={handleChange}  label="Task Description" variant="outlined" /></Grid>
-                <Grid item xs={12}><ErrorMessage className="error" name="task_description" component="div" /></Grid>
-              </Grid>
-              <Grid container spacing={12}>
-                <Grid item xs={12}><label>Is Task Completed ?</label><Field type="checkbox" name="status" checked={values.state} /> </Grid>
-              </Grid>
-              <Button type="submit" disabled={isSubmitting} variant="contained" color="primary">
-                Add Task
-              </Button>
+            <Form className={`${classes.root}`}>
+              <Box p={2}>
+                <TextField fullWidth className="full-width" name="task_name" type="text" value={values.task_name} onChange={handleChange}  label="Task Name" variant="outlined" />
+                <ErrorMessage className={classes.error} name="task_name" component="div" />
+              </Box>
+              <Box p={2}>
+                <TextField fullWidth className="full-width" name="task_description" type="text" value={values.task_description} onChange={handleChange}  label="Task Description" variant="outlined" />
+                <ErrorMessage className={classes.error} name="task_description" component="div" />
+              </Box>
+              <Box p={2}>
+                <Button fullWidth type="submit" disabled={isSubmitting} variant="contained" color="primary">{props.taskData ? 'Update' : 'Add'}</Button>
+              </Box>
             </Form>
           )}
         </Formik>
-      </div>
+        </Grid>
+      </Grid>
     </Dialog>
   );
 }

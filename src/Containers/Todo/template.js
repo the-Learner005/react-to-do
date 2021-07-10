@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import { makeStyles, Button, Icon, Paper, Grid} from '@material-ui/core';
+import { makeStyles, Button, Paper, Grid, Snackbar } from '@material-ui/core';
 import Task from './Task';
 import ToDoList from './list';
 import uuid from 'react-uuid';
-import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
+import MuiAlert from '@material-ui/lab/Alert';
 function Template(props){
   const useStyles = makeStyles((theme) => ({
     root: {
@@ -24,6 +24,7 @@ function Template(props){
   const [TaskData, setTask] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const [selectedValue, setSelectedValue] = React.useState();
+  const [showAlert, setAlert] = React.useState(false);
   
   const handleClickOpen = (action) => {
     setOpen(true);
@@ -35,32 +36,39 @@ function Template(props){
   };
   const _updateTaskList = function(data){
     updateList(data);
-    // Here is the issue, After Tasks list get updated , its not updating Todolist
   }
   const addTask = function(task){
     task.id = uuid();
     let copyTasks = [...Tasks];
     copyTasks.push(task);
     updateList(copyTasks);
+    setAlert(true);
+    setOpen(false);
+    
   }
   const editTask = function(task){
     let copyTasks = [...Tasks];
     copyTasks.map((item, index) => {
-      if(item.id == task.id){
-        item = task;
+      if(item.id === task.id){
+        copyTasks[index] = task;
+        return true;
       }
     });
     updateList(copyTasks);
+    setOpen(false);
+    setAlert(true);
   }
 
-  const findTask = function(id){
+  const deleteTask = function(task){
     let copyTasks = [...Tasks];
     copyTasks.map((item, index) => {
-      if(item.id == id){
-        return item;
+      if(item.id === task.id){
+        copyTasks.splice(index, 1);
+        return true;
       }
     });
-    return false;
+    updateList(copyTasks);
+    setAlert(true);
   }
 
   const saveData = function(data){
@@ -71,33 +79,33 @@ function Template(props){
     else{
       handleClickOpen();
       setTask(data);
-      // editTask(data);
     }
+  }
+
+  const Alert = function(props) {
+    return <MuiAlert elevation={6} variant="filled" {...props} />;
+  }
+  const closeAlert = function(){
+    setAlert(false);
   }
 
   return (
     <div>
-      <Grid container spacing={12}>
-        <Grid item xs={6}>
-          <Paper className={classes.paper}>
-            <Button variant="outlined" onClick={saveData} color="primary">
-              Add Task <AddIcon/>
-            </Button>
-            <Task selectedValue={selectedValue} open={open} onClose={handleClose} updateTaskList={_updateTaskList} allTasks={Tasks} saveData={saveData} taskData={TaskData}></Task>
-          </Paper>
-        </Grid>
-        <Grid item xs={6}>
-          <ToDoList allTasks={Tasks} saveData={saveData}></ToDoList>
+      <Grid container spacing={3}>
+        <Grid item xs={4}></Grid>
+        <Grid item xs={4}>
+          <div className={classes.paper}>
+            <Button variant="outlined" onClick={saveData} color="primary">Add Task <AddIcon/></Button>
+            <Task selectedValue={selectedValue} open={open} onClose={handleClose} updateTaskList={_updateTaskList} allTasks={Tasks} saveData={saveData} taskData={TaskData} addTask={addTask} editTask={editTask}></Task>
+            <Snackbar open={showAlert} autoHideDuration={2000} onClose={closeAlert}>
+              <Alert severity="success">
+                Operation Successful
+              </Alert>
+            </Snackbar>
+            <ToDoList allTasks={Tasks} saveData={saveData} deleteTask={deleteTask}></ToDoList>
+          </div>
         </Grid>
       </Grid>
-      <Grid container spacing={12}>
-        <Grid item xs={12}>
-          <Paper className={classes.paper}>
-           <p>Get</p>
-          </Paper>
-        </Grid>
-      </Grid> 
-      
     </div>
   );
 }
